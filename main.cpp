@@ -1,15 +1,25 @@
 #include <iostream>
 #include <vector>
 
+int width = 15;
+int height = 21;
+int res = 800;
+
+
+//Basic piece
 struct Piece
 {
+    //each piece should have a string marker
     std::string marker;
+
+    //location on the map
     int pos_x;
     int pos_y;
-    //int dir;
 
+    //if this piece is passable
     bool passable = false;
 
+    //print the piece
     void printpiece()
     {
         std::cout << marker;
@@ -17,41 +27,16 @@ struct Piece
 
 };
 
+//player piece
 struct Player:Piece
 {
+    //set player market on initialize
     Player()
     {marker = "ỻ ";}
 
-    void move()
-    {
-        char dir;
-        std::cout << "Move:\nw: North\na: East\ns: South\nd: West\n";
-        std::cin >> dir;
-        switch(dir)
-        {
-        case 'w':
-            pos_y = pos_y - 1;
-            break;
-
-
-        case 's':
-            pos_y = pos_y + 1;
-            break;
-
-
-        case 'd':
-            pos_x = pos_x + 1;
-            break;
-
-        case 'a':
-            pos_x = pos_x - 1;
-            break;
-        }
-
-
-    }
 };
 
+//Same as player, just more simple for now
 struct Monster:Piece
 {
     Monster()
@@ -59,12 +44,14 @@ struct Monster:Piece
     }
 };
 
+//Wall piece
 struct Wall:Piece
 {
     Wall(){marker = "* ";}
 
 };
 
+//Floor piece is passable
 struct Floor:Piece
 {
     Floor(){marker = "  ", passable = true;}
@@ -74,47 +61,32 @@ struct Floor:Piece
 
 struct Board
 {
-    int width = 20;
-    int height = 20;
     int num;
-    int initX = 0;
-    int initY = 0;
+    int initX = 1;
+    int initY = 1;
     int counter = 0;
     bool visited = false;
-    Piece arrBoard[20][20];
-    Floor floor;
+    Piece arrBoard[100][100];
+    Piece arrPieces[2];
 
 
-void GenerateBoard(Wall& wall)
+
+
+void GenerateBoard(Wall& wall, Floor& floor)
     {
-        for(int col = 0; col < width; col++)
+        for(int col = 0; col <= width; col++)
          {
-            for(int row = 0; row < height; row++)
+            for(int row = 0; row <= height; row++)
             {
                 arrBoard[col][row] = wall;
-                wall.printpiece();
-
-                /**Insert Characters
-                int i = 0;
-                if(arrPieces[i].pos_x == row && arrPieces[i].pos_y == col)
-                {
-                    std::cout << arrPieces[i].marker;
-                } else if(arrPieces[i+1].pos_x == row && arrPieces[i+1].pos_y == col)
-                {
-                    std::cout << arrPieces[i+1].marker;
-                } else
-                {
-                        flag = true;
-                    }
-                    **/
             }
             std::cout << std::endl;
 
             }
-        arrBoard[0][0] = floor;
+        //arrBoard[0][0] = floor;
         }
 
-void checkRndNeighbor()
+void checkRndNeighbor(Floor &floor)
 {
     int rnd = rand() % 4;
 
@@ -124,7 +96,7 @@ void checkRndNeighbor()
         {
             initY --;
 
-        if(initY < 0)
+        if(initY < 1)
             {
             initY ++;
             } else
@@ -141,7 +113,7 @@ void checkRndNeighbor()
         {
             initX --;
 
-        if(initX < 0)
+        if(initX < 1)
             {
             initX ++;
             } else
@@ -159,7 +131,7 @@ void checkRndNeighbor()
         {
             initX ++;
 
-        if(initX > 20)
+        if(initX > width-1)
             {
             initX --;
             } else
@@ -176,7 +148,7 @@ void checkRndNeighbor()
         {
             initY ++;
 
-        if(initY > 20)
+        if(initY > height-1)
             {
             initY --;
             } else
@@ -189,30 +161,154 @@ void checkRndNeighbor()
             break;
         }
     }
-};
+}
 
-
-void PrintMaze(Piece board[20][20])
+void PrintMaze(Piece board[100][100])
 {
-    for(int col = 0; col <= 19; col++)
+    for(int col = 0; col <= width; col++)
          {
-            for(int row = 0; row <= 19; row++)
+            for(int row = 0; row <= height; row++)
             {
                 board[col][row].printpiece();
             }
             std::cout << std::endl;
          }
-};
+}
 
-void GenerateMaze(Piece board[20][20])
+void GenerateMaze(Piece board[100][100], Floor &floor)
 {
-    for(int i = 0; i <= 400; i++)
+    for(int i = 0; i <= res; i++)
             {
-                checkRndNeighbor();
+                checkRndNeighbor(floor);
             }
     std::cout << std::endl << std::endl;
-    PrintMaze(board);
+}
+
+void SetPos(Player &piece, Monster &monster, Board &board)
+    {
+        bool flag=true;
+        bool flag2=true;
+        while(flag == true && flag2 == true)
+        {
+            piece.pos_x = rand() % height;
+            piece.pos_y = rand() % width;
+
+            monster.pos_x = rand() % height;
+            monster.pos_y = rand() % width;
+
+            if(board.arrBoard[piece.pos_y][piece.pos_x].passable == true && board.arrBoard[monster.pos_y][monster.pos_x].passable == true)
+            {
+                flag = false;
+                flag2 = false;
+            } else
+                while(flag == true && flag2 == true)
+                    {
+                        if(board.arrBoard[piece.pos_y][piece.pos_x].passable == false)
+                        {
+                            piece.pos_x = rand() % height;
+                            piece.pos_y = rand() % width;
+                        } else
+                            {
+
+                                flag = false;
+                            }
+
+                        if(board.arrBoard[monster.pos_y][monster.pos_x].passable == false)
+                        {
+                            monster.pos_x = rand() % height;
+                            monster.pos_y = rand() % width;
+                        } else
+                        {
+                            flag2 = false;
+                        }
+                    }
         }
+    }
+
+
+void PlaceCharacter(Piece arrPieces[2])
+{
+     for(int col = 0; col <= width-1; col++)
+         {
+            for(int row = 0; row <= height-1; row++)
+            {
+                int i = 0;
+                if(arrPieces[i].pos_x == row && arrPieces[i].pos_y == col)
+                {
+                    arrBoard[col][row] = arrPieces[i];
+                    std::cout << arrPieces[i].pos_x << " " << arrPieces[i].pos_y << std::endl;
+                } else if(arrPieces[i+1].pos_x == row && arrPieces[i+1].pos_y == col)
+                {
+                    arrBoard[col][row] = arrPieces[i+1];
+                }
+            }
+         }
+}
+
+    //move player
+    void move(Player &piece, Monster &monster, Floor &floor, Wall &wall, Board &board)
+    {
+        //input variable
+        char dir;
+
+        //Movement cases
+        std::cout << "Move:\nw: North\na: East\ns: South\nd: West\n";
+        std::cin >> dir;
+        switch(dir)
+        {
+        case 'w':
+
+            if(arrBoard[piece.pos_y-1][piece.pos_x].passable == true)
+            {
+                arrBoard[piece.pos_y][piece.pos_x] = floor;
+                piece.pos_y = piece.pos_y - 1;
+            }
+            break;
+
+
+        case 's':
+            if(arrBoard[piece.pos_y+1][piece.pos_x].passable == true)
+            {
+            arrBoard[piece.pos_y][piece.pos_x] = floor;
+            piece.pos_y = piece.pos_y + 1;
+            }
+            break;
+
+
+        case 'd':
+            if(arrBoard[piece.pos_y][piece.pos_x+1].passable == true)
+            {
+            arrBoard[piece.pos_y][piece.pos_x] = floor;
+            piece.pos_x = piece.pos_x + 1;
+            }
+            break;
+
+        case 'a':
+            if(arrBoard[piece.pos_y][piece.pos_x-1].passable == true)
+            {
+            arrBoard[piece.pos_y][piece.pos_x] = floor;
+            piece.pos_x = piece.pos_x - 1;
+            }
+            break;
+
+        case 'm':
+            std::cout << "Input Width:";
+            std::cin >> width;
+            std::cout << "Input Height:";
+            std::cin >> height;
+            std::cout << "Input Resolution: ";
+            std::cin >> res;
+
+            GenerateBoard(wall, floor);
+            GenerateMaze(arrBoard, floor);
+            SetPos(piece, monster, board);
+            PlaceCharacter(arrPieces);
+            PrintMaze(arrBoard);
+            break;
+        }
+
+
+    }
 
 };
 
@@ -223,26 +319,48 @@ int main()
 {
     srand(time(0));
 
-    Board board{ 20, 20 };
+    int choice;
+    Board board{ width , height };
     Player piece;
     Wall wall;
     Floor floor;
-    piece.pos_x = 1;
-    piece.pos_y = 1;
     Monster monster;
-    monster.pos_x = 3;
-    monster.pos_y = 3;
-    Piece arrPieces[2] = {piece, monster};
+    bool flag = true;
+    bool gameloop = true;
 
-    board.GenerateBoard(wall);
-    board.GenerateMaze(board.arrBoard);
-    /**while (true)
+while(flag == true)
     {
-    piece.move();
-    arrPieces[0] = piece;
-    board.GenerateBoard(wall);
-    board.GenerateMaze(board.arrBoard);
-    }**/
+    std::cout << "1. Generate Maze\n2. Navigate Current Maze\n";
+    std::cin >> choice;
+    if(choice == 1)
+        {
+
+            std::cout << "Input Width:";
+            std::cin >> width;
+            std::cout << "Input Height:";
+            std::cin >> height;
+            std::cout << "Input Resolution: ";
+            std::cin >> res;
+
+            board.GenerateBoard(wall, floor);
+            board.GenerateMaze(board.arrBoard, floor);
+            board.SetPos(piece, monster, board);
+            board.arrPieces[0] = piece;
+            board.arrPieces[1] = monster;
+            board.PlaceCharacter(board.arrPieces);
+            board.PrintMaze(board.arrBoard);
+        } else if (choice == 2)
+            {flag = false;
+            while (gameloop == true)
+            {
+            board.move(piece, monster, floor, wall, board);
+            board.arrPieces[0] = piece;
+            board.PlaceCharacter(board.arrPieces);
+            board.PrintMaze(board.arrBoard);
+            }
+
+
+    }}
 
 
     return 0;
