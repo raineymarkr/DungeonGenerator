@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 
-int width = 15;
-int height = 21;
-int res = 800;
+int width;
+int height;
+int res;
 
 
 //Basic piece
@@ -58,15 +58,25 @@ struct Floor:Piece
 
 };
 
-
+//define the board
 struct Board
 {
     int num;
+
+    //define seed start
     int initX = 1;
     int initY = 1;
+
+    //counter variable
     int counter = 0;
+
+    //if visited
     bool visited = false;
+
+    //board array
     Piece arrBoard[100][100];
+
+    //player and monster array
     Piece arrPieces[2];
 
 
@@ -74,13 +84,12 @@ struct Board
 
 void GenerateBoard(Wall& wall, Floor& floor)
     {
-        for(int col = 0; col <= width; col++)
+        for(int col = 0; col <= height; col++)
          {
-            for(int row = 0; row <= height; row++)
+            for(int row = 0; row <= width; row++)
             {
                 arrBoard[col][row] = wall;
             }
-            std::cout << std::endl;
 
             }
         //arrBoard[0][0] = floor;
@@ -101,9 +110,9 @@ void checkRndNeighbor(Floor &floor)
             initY ++;
             } else
 
-        if( arrBoard[initX][initY].passable == false)
+        if( arrBoard[initY][initX].passable == false)
             {
-            arrBoard[initX][initY] = floor;
+            arrBoard[initY][initX] = floor;
             counter++;
             }
             break;
@@ -118,9 +127,9 @@ void checkRndNeighbor(Floor &floor)
             initX ++;
             } else
 
-        if( arrBoard[initX][initY].passable == false)
+        if( arrBoard[initY][initX].passable == false)
             {
-            arrBoard[initX][initY] = floor;
+            arrBoard[initY][initX] = floor;
             counter++;
             }
             break;
@@ -136,9 +145,9 @@ void checkRndNeighbor(Floor &floor)
             initX --;
             } else
 
-        if( arrBoard[initX][initY].passable == false)
+        if( arrBoard[initY][initX].passable == false)
             {
-            arrBoard[initX][initY] = floor;
+            arrBoard[initY][initX] = floor;
             counter++;
             }
             break;
@@ -153,9 +162,9 @@ void checkRndNeighbor(Floor &floor)
             initY --;
             } else
 
-        if( arrBoard[initX][initY].passable == false)
+        if( arrBoard[initY][initX].passable == false)
             {
-            arrBoard[initX][initY] = floor;
+            arrBoard[initY][initX] = floor;
             counter++;
             }
             break;
@@ -165,9 +174,9 @@ void checkRndNeighbor(Floor &floor)
 
 void PrintMaze(Piece board[100][100])
 {
-    for(int col = 0; col <= width; col++)
+    for(int col = 0; col <= height; col++)
          {
-            for(int row = 0; row <= height; row++)
+            for(int row = 0; row <= width; row++)
             {
                 board[col][row].printpiece();
             }
@@ -181,7 +190,6 @@ void GenerateMaze(Piece board[100][100], Floor &floor)
             {
                 checkRndNeighbor(floor);
             }
-    std::cout << std::endl << std::endl;
 }
 
 void SetPos(Player &piece, Monster &monster, Board &board)
@@ -190,11 +198,11 @@ void SetPos(Player &piece, Monster &monster, Board &board)
         bool flag2=true;
         while(flag == true && flag2 == true)
         {
-            piece.pos_x = rand() % height;
-            piece.pos_y = rand() % width;
+            piece.pos_x = rand() % height-1;
+            piece.pos_y = rand() % width-1;
 
-            monster.pos_x = rand() % height;
-            monster.pos_y = rand() % width;
+            monster.pos_x = rand() % height-1;
+            monster.pos_y = rand() % width-1;
 
             if(board.arrBoard[piece.pos_y][piece.pos_x].passable == true && board.arrBoard[monster.pos_y][monster.pos_x].passable == true)
             {
@@ -205,8 +213,8 @@ void SetPos(Player &piece, Monster &monster, Board &board)
                     {
                         if(board.arrBoard[piece.pos_y][piece.pos_x].passable == false)
                         {
-                            piece.pos_x = rand() % height;
-                            piece.pos_y = rand() % width;
+                            piece.pos_x = rand() % height-1;
+                            piece.pos_y = rand() % width-1;
                         } else
                             {
 
@@ -215,8 +223,8 @@ void SetPos(Player &piece, Monster &monster, Board &board)
 
                         if(board.arrBoard[monster.pos_y][monster.pos_x].passable == false)
                         {
-                            monster.pos_x = rand() % height;
-                            monster.pos_y = rand() % width;
+                            monster.pos_x = rand() % height-1;
+                            monster.pos_y = rand() % width-1;
                         } else
                         {
                             flag2 = false;
@@ -228,15 +236,14 @@ void SetPos(Player &piece, Monster &monster, Board &board)
 
 void PlaceCharacter(Piece arrPieces[2])
 {
-     for(int col = 0; col <= width-1; col++)
+     for(int col = 0; col <= height; col++)
          {
-            for(int row = 0; row <= height-1; row++)
+            for(int row = 0; row <= width; row++)
             {
                 int i = 0;
                 if(arrPieces[i].pos_x == row && arrPieces[i].pos_y == col)
                 {
                     arrBoard[col][row] = arrPieces[i];
-                    std::cout << arrPieces[i].pos_x << " " << arrPieces[i].pos_y << std::endl;
                 } else if(arrPieces[i+1].pos_x == row && arrPieces[i+1].pos_y == col)
                 {
                     arrBoard[col][row] = arrPieces[i+1];
